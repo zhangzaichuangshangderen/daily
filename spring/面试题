@@ -1,0 +1,24 @@
+
+
+1. spring中常用的注解
+创建bean
+@Component -> @Controller @Service @Repository
+@Bean
+
+bean的作用范围
+@Scope("singleton") 单例，差不多和容器一样的生命周期
+@Scope("prototype")	多实例，每次从容器中获取bean的时候都创建一个新的实例
+
+自动装配
+@Autoload
+@Qualifier 
+Q：@Autoload和@Resource的区别
+
+配置类
+@Configuration
+@EnableAutoConfiguration
+
+启动
+@SpringBootApplication
+@EnableAutoConfiguration
+@ComponentScan
