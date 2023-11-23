@@ -53,24 +53,19 @@ singletonObjects：
 	时机： 当Bean的初始化完成后，会被放入这个缓存中。
 第二级缓存：
 earlySingletonObjects：
-	作用： 存储早期（early）创建但尚未完成初始化的单例Bean实例。这是为了解决循环依赖问题而提供的缓存。
-	时机： 当Bean的实例被创建但还未完成初始化时，会被放入这个缓存中。（比如依赖了其他的对象，这个对象还没完成初始化）
-第三级缓存：
+	作用： 存储早期（early）创建但尚未完成初始化的单例Bean实例
+	时机： 当Bean的实例被创建但还未完成初始化时，会被放入这个缓存中。
+第三级缓存：（主要为了解决Aop下的循环引用）
 singletonFactories：
-	作用： 存储用于创建单例Bean实例的ObjectFactory。这也是为了解决循环依赖问题而提供的缓存。
-	时机： 当调用ObjectFactory的getObject方法时，会将创建Bean的工厂实例放入这个缓存中
+	作用： 存储用于创建单例Bean实例的工厂方法（不一定会被用到）
+	时机： 当Bean的实例被创建但还未完成初始化时？？？
 
-比如BeanA依赖BeanB，BeanB依赖BeanA
-在创建BeanA的时候
-
-
-当创建BeanA的时候，A没有任何依赖，我们顺利完成了A的初始化，则会将A放入singletonObjects中。
-当创建BeanB的时候，B依赖A，A已经初始化完成了，我们也可以顺利完成B的初始化，B也被放入了singletonObjects中。
-当创建BeanC的时候，C依赖D，D还没有创建，那BeanC其实已经创建了（在堆上分配了内存吧啦吧啦的，）但是C没有完成初始化，是个半成品，所以会被放入earlySingletonObjects中，同时也会将BeanC的ObjectFactory放到singletonFactories中。接下来Spring就会去创建BeanD
-当创建BeanD的时候，如果D依赖C，可以通过earlySingletonObjects中取出C的地址，赋值给D，D完成初始化，可以放入singletonObjects。
-返回到BeanC的创建
-
-
+bean的创建粗粗的划分大概有3个阶段，实例化 -》 依赖注入 -〉初始化
+假如BeanA，不存在任何的循环引，那它实例化、依赖注入、初始化之后，就会被放入singletonObjects中，它是一个完整的Bean。
+假如BeanA和BeanB之间存在循环引用，那它们的创建过程是这样的：
+1. 实例化A，对A进行属性注入，发现A依赖B，将A放singletonFactories中
+2. 实例化B，对B进行属性填充，通过singletonFactories拿到A的工厂方法，进行初始化，完成，存入到singletonObjects
+3. 返回A，完成属性注入，开始执行初始化，如果配置了AOP，那
 
 
 
