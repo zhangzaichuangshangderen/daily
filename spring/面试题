@@ -22,3 +22,55 @@ Q：@Autoload和@Resource的区别
 @SpringBootApplication
 @EnableAutoConfiguration
 @ComponentScan
+
+
+
+
+2. 什么是依赖注入，依赖注入有什么好处，有哪几种方式
+依赖注入是实现控制反转的实现方式。
+当代码中需要依赖其他对象的时候，有两种方式
+1. 直接在代码中new一个对象出来
+2. 由IoC容器来构造对象，再将构造好的对象注入到我们的对象中。
+第二种方式就是依赖注入
+
+依赖注入的好处就是可以减少代码之间的耦合，可以轻松的切换和替换依赖
+举个例子：推荐列表，推荐列表通常由 读取推荐池-》过滤-》通过推荐策略排序-〉组装数据几个步骤完成
+其中最常迭代的就是推荐策略
+如果使用第一种方式，推荐代码将和推荐策略耦合在一起，且每一次调整策略时，都需要更改推荐的代码
+如果使用依赖注入，我们可以将推荐策略注入到推荐服务中去，更改推荐策略的时候，则完全不需要更改推荐服务的代码
+减少了代码之间的耦合，减少了迭代时候的工作量
+
+依赖注入的方式
+1. 通过构造器注入（@Autowired + 构造方法，推荐，但是我也没用过）
+2. 通过setter方法注入（@Autowired + set方法，没用过）
+3. 通过字段注入（@Autowired + 字段属性，最常用）
+
+3.解释下Spring中的“三级缓存”
+spring的三级缓存主要是为了解决循环依赖的问题
+第一级缓存：
+singletonObjects：
+	作用： 存储已经完全初始化并准备就绪的单例Bean实例。
+	时机： 当Bean的初始化完成后，会被放入这个缓存中。
+第二级缓存：
+earlySingletonObjects：
+	作用： 存储早期（early）创建但尚未完成初始化的单例Bean实例。这是为了解决循环依赖问题而提供的缓存。
+	时机： 当Bean的实例被创建但还未完成初始化时，会被放入这个缓存中。（比如依赖了其他的对象，这个对象还没完成初始化）
+第三级缓存：
+singletonFactories：
+	作用： 存储用于创建单例Bean实例的ObjectFactory。这也是为了解决循环依赖问题而提供的缓存。
+	时机： 当调用ObjectFactory的getObject方法时，会将创建Bean的工厂实例放入这个缓存中
+
+比如BeanA依赖BeanB，BeanB依赖BeanA
+在创建BeanA的时候
+
+
+当创建BeanA的时候，A没有任何依赖，我们顺利完成了A的初始化，则会将A放入singletonObjects中。
+当创建BeanB的时候，B依赖A，A已经初始化完成了，我们也可以顺利完成B的初始化，B也被放入了singletonObjects中。
+当创建BeanC的时候，C依赖D，D还没有创建，那BeanC其实已经创建了（在堆上分配了内存吧啦吧啦的，）但是C没有完成初始化，是个半成品，所以会被放入earlySingletonObjects中，同时也会将BeanC的ObjectFactory放到singletonFactories中。接下来Spring就会去创建BeanD
+当创建BeanD的时候，如果D依赖C，可以通过earlySingletonObjects中取出C的地址，赋值给D，D完成初始化，可以放入singletonObjects。
+返回到BeanC的创建
+
+
+
+
+
